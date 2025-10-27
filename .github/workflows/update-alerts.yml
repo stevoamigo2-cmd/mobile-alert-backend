@@ -22,10 +22,8 @@ jobs:
 
       - name: Update KV
         run: |
-          wrangler kv:key put \
-            --namespace-id ${{ secrets.KV_NAMESPACE_ID }} \
-            --key "osm-data" \
-            --value "$(cat mobile_alerts.json)"
+          wrangler kv put ${{ secrets.KV_NAMESPACE_ID }} osm-data "$(cat mobile_alerts.json)"
+
         env:
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
 
