@@ -2,8 +2,8 @@ name: Update Mobile Alerts
 
 on:
   schedule:
-    - cron: '0 0 * * *' # daily at midnight UTC
-  workflow_dispatch: # manual trigger
+    - cron: '0 0 * * *'  # every day at midnight UTC
+  workflow_dispatch:
 
 jobs:
   update_alerts:
@@ -12,7 +12,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Install Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20'
@@ -20,15 +20,8 @@ jobs:
       - name: Install Wrangler
         run: npm install -g wrangler
 
-      - name: Update KV
+      - name: Publish KV data
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }} # must be CLOUDFLARE_API_TOKEN
         run: |
-          wrangler kv put ${{ secrets.KV_NAMESPACE_ID }} osm-data "$(cat mobile_alerts.json)"
-
-        env:
-          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
-
-      - name: Deploy Worker (optional if script changes)
-        run: wrangler deploy worker.js
-        env:
-          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
-          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          wrangler kv key put --namespace-id ${{ secrets.KV_NAMESPACE_ID }} osm-data "$(cat mobile_alerts.json)"
